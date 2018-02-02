@@ -1,93 +1,74 @@
-import cs251.lab2.*; 
-
-
+import cs251.lab2.*;
 public class Gomoku implements GomokuModel {
-
-	enum Turn {
-		CROSS,RING;
-	}
-	
-	
-	
-	private Turn currentTurn = Turn.CROSS;
+private Player player = Player.CROSS;
 	private Square[][] board;
-	
-	public static void main(String[] args) {
-		Gomoku game = new Gomoku(); if(args.length > 0)
-		{ game.setComputerPlayer(args[0]); } 
-		game.board = new Square[game.getNumRows()][game.getNumCols()];
-        game.startNewGame();
-		GomokuGUI.showGUI(game);
-		game.startNewGame();
-	}
-	
-
-	
-
-	@Override
-	public String getBoardString() {
-		String BoardString = "";
-		for(int r = 0; r<getNumRows();r++) {
-			for(int c = 0; c<getNumCols();c++) {
-			
-				BoardString += board [r][c].toChar();
-				
-			}
-			BoardString+= "\n";
+public  static  void  main( String [] args ) {
+		Gomoku  game =   new  Gomoku ();
+		if(args.length > 0) {
+			game.setComputerPlayer(args [0]);
 		}
-		return BoardString;
+		game.board = new Square[game.getNumRows()][game.getNumCols()];
+		Player.CROSS.setBoard(game.board);
+		Player.CROSS.setNumInLineForWin(game.getNumInLineForWin());
+		Player.RING.setBoard(game.board);
+		Player.RING.setNumInLineForWin(game.getNumInLineForWin());
+		game.startNewGame();
+		GomokuGUI.showGUI(game);
 	}
-
-	@Override
+@Override
+	public String getBoardString() {
+		String boardString = "";
+		for(int r=0; r<getNumRows(); r++) {
+			for(int c=0; c<getNumCols(); c++) {
+				boardString += board[r][c].toChar();
+			}
+		boardString += "\n";
+		}
+		return boardString;
+	}
+@Override
 	public int getNumCols() {
-		// TODO Auto-generated method stub
 		return DEFAULT_NUM_COLS;
 	}
-
-	@Override
+@Override
 	public int getNumInLineForWin() {
-		// TODO Auto-generated method stub
-		return 0;
+		return SQUARES_IN_LINE_FOR_WIN;
 	}
-
-	@Override
+@Override
 	public int getNumRows() {
-		// TODO Auto-generated method stub
 		return DEFAULT_NUM_ROWS;
 	}
-
-	@Override
+@Override
 	public Outcome handleClickAt(int row, int col) {
 		if (board[row][col] == Square.EMPTY) {
-			if(currentTurn == Turn.CROSS) {
-                board[row][col] = Square.CROSS;
-                currentTurn = Turn.RING;
-            } else {
-                board[row][col] = Square.RING;
-                currentTurn = Turn.CROSS;
-            }
-        	   
-           }
-        
+			player.setMove(row, col);
+			board[row][col] = player.toSquare();
+			if(player.checkForWin()) {
+				return player.wins();
+			} else {
+				player = player.next();
+				if(getBoardString().indexOf(Square.EMPTY.toChar()) < 0) {
+					return Outcome.DRAW;
+				} else {
+					return Outcome.GAME_NOT_OVER;
+				}
+			}
+}
 		return Outcome.GAME_NOT_OVER;
 	}
-
-	@Override
+@Override
 	public void setComputerPlayer(String arg0) {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+}
+@Override
 	public void startNewGame() {
-		for(int r = 0; r<getNumRows();r++) {
-			for(int c = 0; c<getNumCols();c++) {
-				board[r][c]=Square.EMPTY;
+		for(int r=0; r<getNumRows(); r++) {
+			for(int c=0; c<getNumCols(); c++) {
+				board[r][c] = Square.EMPTY;
 			}
 		}
-		
-		
-		
-	}
-
+		Player.CROSS.setMove(-1, -1);
+		Player.RING.setMove(-1, -1);
 }
+}
+
